@@ -13,13 +13,18 @@ int Blue =10;
 int Green = 9;
 
 //fan
-int Fan_1 = 4;
+int Fan_pin = 4;
 //assigning pin in array
 
 int ledPins[]={led_1,led_2,led_3};
 int RGB_lights[]={Red,Blue,Green};
-int BrightnessPins[]={LED_1,LED_2,LED_3}
+int BrightnessPins[]={LED_1,LED_2,LED_3};
 
+void Led_Lights(int);
+void brightness_control(int);
+void RGB_control(String);
+void Fan_1(String);
+void setColor(int,int,int);
 
 void setup() {
   // put your setup code here, to run once:
@@ -29,7 +34,7 @@ void setup() {
     pinMode(ledPins[i],OUTPUT);
     pinMode(BrightnessPins[i],OUTPUT);
     pinMode(RGB_lights[i],OUTPUT);
-    pinMode(Fan_1,OUTPUT);
+    pinMode(Fan_pin,OUTPUT);
   }
 }
 
@@ -37,32 +42,33 @@ void loop() {
 
   while (Serial.available() > 0) {
   // Assuming Incoming_data is a string
-  String command = Serial.readString('\n'); // Read the command until the newline character
+  String command = Serial.readString(); // Read the command until the newline character
 
   if (command == "Led") {
     // Call the Led_Lights function with the next piece of data received
     if (Serial.available() > 0) {
-    int led_data = Serial.parsInt(); // Read the next byte as LED data
+    int led_data = Serial.parseInt(); // Read the next byte as LED data
       Led_Lights(led_data);
-    String motor_values = readString(); // Get the substring with the RGB values
+    String motor_values = Serial.readString(); // Get the substring with the RGB values
       Fan_1(motor_values);
     }
   }
-   else if (command == "brightness")) {
+   else if (command == "brightness") {
     // Extract the brightness value from the command
-    int brightness_value = Serial.parsInt(); // Assuming the command is like "brightness128"
+    int brightness_value = Serial.parseInt(); // Assuming the command is like "brightness128"
     brightness_control(brightness_value);
+
   }
    else if (command == "RGB") {
     // Extract the RGB values and call RGB_control
     // Assuming the command is in the format "RGB255,0,0"
-    String rgb_values = readString(); // Get the substring with the RGB values
+    String rgb_values = Serial.readString(); // Get the substring with the RGB values
     RGB_control(rgb_values);
   }
+  }
 }
-
-// 3 leds , 1 fan , 3 leds with pwm brigthnes conteroll and 1 rgb with pws 
-void Led_Lights(int Incoming_data) {
+ // 3 leds , 1 fan , 3 leds with pwm brigthnes conteroll and 1 rgb with pws 
+ void Led_Lights(int Incoming_data) {
   switch (Incoming_data) {
     // Check the incoming data from MIT App Inventor which number is sending
     // LED 1
@@ -93,15 +99,15 @@ void Led_Lights(int Incoming_data) {
       Serial.println("Led 3 is Off");
       break;
   }
-}
+ }
 
-void brightness_control(int value){
-      analogWrite(LED_1,Incoming_data);
-      analogWrite(LED_2,Incoming_data);
-      analogWrite(LED_3,Incoming_data);
-}
+ void brightness_control(int value){
+      analogWrite(LED_1,value);
+      analogWrite(LED_2,value);
+      analogWrite(LED_3,value);
+ }
 
-void RGB_control(char Incoming_data) {
+ void RGB_control(char Incoming_data) {
   // This function needs to receive strings, but Arduino can't switch on strings directly
   // Use if-else statements to check the incoming data string against known commands
   String command = String(Incoming_data); // Convert char to String for comparison
@@ -126,17 +132,18 @@ void RGB_control(char Incoming_data) {
     setColor(255, 215, 0);
   }
   // Add more colors as needed
-}
-void Fan_1(string data)
-{
-  if(data == 'on')
-     digitalWrite(Fan_1,HIGH);
-  else if(data== 'off')
-    digitalWrite(Fan_1,LOW);
-}
+ }
+ void Fan_1(String data)
+ {
+  if(data == "on")
+     digitalWrite(Fan_pin,HIGH);
+  else if(data== "off")
+    digitalWrite(Fan_pin,LOW);
+ }
 
-void setColor(int red, int green, int blue) {
+ void setColor(int red, int green, int blue) {
   analogWrite(Red, red);
   analogWrite(Green, green);
   analogWrite(Blue, blue);
-}
+ }
+ 
